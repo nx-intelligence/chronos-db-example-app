@@ -1,129 +1,146 @@
 import { initChronos } from 'chronos-db';
 import { envDbConfig } from './envDbConfig';
 
-// Multi-database configuration example - chronos-db 1.5.1 format
+// Multi-database configuration example - chronos-db 1.5.2 format
 export const multiDbConfig = {
-  // Multiple MongoDB connection URIs (1-10 supported)
-  mongoUris: [
-    envDbConfig.mongoUri, // Primary connection
-    'mongodb://backup-server:27017', // Backup connection
-    'mongodb://analytics-server:27017', // Analytics connection
+  // MongoDB connections - define once, reference by key
+  mongoConns: [
+    {
+      key: 'mongo-primary',
+      mongoUri: envDbConfig.mongoUri, // Primary connection
+    },
+    {
+      key: 'mongo-backup',
+      mongoUri: 'mongodb://backup-server:27017', // Backup connection
+    },
+    {
+      key: 'mongo-analytics',
+      mongoUri: 'mongodb://analytics-server:27017', // Analytics connection
+    },
     // Add more connections as needed
   ],
   
   // Enhanced multi-tenant database configuration
   databases: {
-    metadata: {
-      generic: {
+    metadata: [
+      {
         key: 'meta-generic',
-        mongoUri: envDbConfig.mongoUri,
+        mongoConnKey: 'mongo-primary',
+        spacesConnKey: 'do-spaces',
         dbName: 'meta_generic',
       },
-      domains: [
-        {
-          key: 'meta-domain-1',
-          extIdentifier: 'domain-1',
-          mongoUri: envDbConfig.mongoUri,
-          dbName: 'meta_domain_1',
-        },
-      ],
-      tenants: [
-        {
-          key: 'meta-tenant-a',
-          extIdentifier: 'tenant-a',
-          mongoUri: envDbConfig.mongoUri,
-          dbName: 'meta_tenant_a',
-        },
-        {
-          key: 'meta-tenant-b',
-          extIdentifier: 'tenant-b',
-          mongoUri: envDbConfig.mongoUri,
-          dbName: 'meta_tenant_b',
-        },
-      ],
-    },
-    knowledge: {
-      generic: {
+      {
+        key: 'meta-domain-1',
+        mongoConnKey: 'mongo-primary',
+        spacesConnKey: 'do-spaces',
+        tenantId: 'domain-1',
+        dbName: 'meta_domain_1',
+      },
+      {
+        key: 'meta-tenant-a',
+        mongoConnKey: 'mongo-primary',
+        spacesConnKey: 'do-spaces',
+        tenantId: 'tenant-a',
+        dbName: 'meta_tenant_a',
+      },
+      {
+        key: 'meta-tenant-b',
+        mongoConnKey: 'mongo-primary',
+        spacesConnKey: 'do-spaces',
+        tenantId: 'tenant-b',
+        dbName: 'meta_tenant_b',
+      },
+    ],
+    knowledge: [
+      {
         key: 'know-generic',
-        mongoUri: envDbConfig.mongoUri,
+        mongoConnKey: 'mongo-primary',
+        spacesConnKey: 'do-spaces',
         dbName: 'know_generic',
       },
-      domains: [
-        {
-          key: 'know-domain-1',
-          extIdentifier: 'domain-1',
-          mongoUri: envDbConfig.mongoUri,
-          dbName: 'know_domain_1',
-        },
-      ],
-      tenants: [
-        {
-          key: 'know-tenant-a',
-          extIdentifier: 'tenant-a',
-          mongoUri: envDbConfig.mongoUri,
-          dbName: 'know_tenant_a',
-        },
-        {
-          key: 'know-tenant-b',
-          extIdentifier: 'tenant-b',
-          mongoUri: envDbConfig.mongoUri,
-          dbName: 'know_tenant_b',
-        },
-      ],
-    },
-    runtime: {
-      generic: {
+      {
+        key: 'know-domain-1',
+        mongoConnKey: 'mongo-primary',
+        spacesConnKey: 'do-spaces',
+        tenantId: 'domain-1',
+        dbName: 'know_domain_1',
+      },
+      {
+        key: 'know-tenant-a',
+        mongoConnKey: 'mongo-primary',
+        spacesConnKey: 'do-spaces',
+        tenantId: 'tenant-a',
+        dbName: 'know_tenant_a',
+      },
+      {
+        key: 'know-tenant-b',
+        mongoConnKey: 'mongo-primary',
+        spacesConnKey: 'do-spaces',
+        tenantId: 'tenant-b',
+        dbName: 'know_tenant_b',
+      },
+    ],
+    runtime: [
+      {
         key: 'runtime-generic',
-        mongoUri: envDbConfig.mongoUri,
+        mongoConnKey: 'mongo-primary',
+        spacesConnKey: 'do-spaces',
         dbName: 'runtime_generic',
       },
-      domains: [
-        {
-          key: 'runtime-domain-1',
-          extIdentifier: 'domain-1',
-          mongoUri: envDbConfig.mongoUri,
-          dbName: 'runtime_domain_1',
-        },
-      ],
-      tenants: [
-        {
-          key: 'runtime-tenant-a',
-          extIdentifier: 'tenant-a',
-          mongoUri: envDbConfig.mongoUri,
-          dbName: 'runtime_tenant_a',
-        },
-        {
-          key: 'runtime-tenant-b',
-          extIdentifier: 'tenant-b',
-          mongoUri: envDbConfig.mongoUri,
-          dbName: 'runtime_tenant_b',
-        },
-      ],
-    },
+      {
+        key: 'runtime-domain-1',
+        mongoConnKey: 'mongo-primary',
+        spacesConnKey: 'do-spaces',
+        tenantId: 'domain-1',
+        dbName: 'runtime_domain_1',
+      },
+      {
+        key: 'runtime-tenant-a',
+        mongoConnKey: 'mongo-primary',
+        spacesConnKey: 'do-spaces',
+        tenantId: 'tenant-a',
+        dbName: 'runtime_tenant_a',
+      },
+      {
+        key: 'runtime-tenant-b',
+        mongoConnKey: 'mongo-primary',
+        spacesConnKey: 'do-spaces',
+        tenantId: 'tenant-b',
+        dbName: 'runtime_tenant_b',
+      },
+    ],
   },
   
   // Multiple S3-compatible storage connections (1-10 supported)
   spacesConns: [
     {
+      key: 'do-spaces',
       // Primary DigitalOcean Spaces
       endpoint: 'https://chronos-1.fra1.digitaloceanspaces.com',
       region: 'fra1',
       accessKey: envDbConfig.spaceAccessKey,
       secretKey: envDbConfig.spaceSecretKey,
-      backupsBucket: 'chronos-backups',
-      jsonBucket: 'chronos-json',
-      contentBucket: 'chronos-content',
+      buckets: {
+        backup: 'chronos-backups',
+        json: 'chronos-json',
+        content: 'chronos-content',
+        versions: 'chronos-versions',
+      },
       forcePathStyle: true,
     },
     {
+      key: 'aws-s3',
       // Secondary AWS S3 (example)
       endpoint: 'https://s3.amazonaws.com',
       region: 'us-east-1',
       accessKey: process.env.AWS_ACCESS_KEY || '',
       secretKey: process.env.AWS_SECRET_KEY || '',
-      backupsBucket: 'chronos-backups-aws',
-      jsonBucket: 'chronos-json-aws',
-      contentBucket: 'chronos-content-aws',
+      buckets: {
+        backup: 'chronos-backups-aws',
+        json: 'chronos-json-aws',
+        content: 'chronos-content-aws',
+        versions: 'chronos-versions-aws',
+      },
       forcePathStyle: false,
     },
     // Add more S3 connections as needed
@@ -237,44 +254,52 @@ export const multiChronos = initChronos(multiDbConfig);
 // Export context-bound operations for different databases and collections
 // Option A: Direct key usage (fastest)
 export const userOps = multiChronos.with({
+  key: 'runtime-generic',
   dbName: 'runtime_generic',
   collection: 'users',
 });
 
 export const productOps = multiChronos.with({
+  key: 'runtime-generic',
   dbName: 'runtime_generic',
   collection: 'products',
 });
 
 export const orderOps = multiChronos.with({
+  key: 'runtime-generic',
   dbName: 'runtime_generic',
   collection: 'orders',
 });
 
 export const analyticsOps = multiChronos.with({
+  key: 'runtime-generic',
   dbName: 'runtime_generic',
   collection: 'events',
 });
 
-// Option B: Tier + extIdentifier usage (flexible)
+// Option B: Tenant-based routing (flexible)
 export const tenantAUserOps = multiChronos.with({
+  key: 'runtime-tenant-a',
   dbName: 'runtime_tenant_a',
   collection: 'users',
 });
 
 export const tenantBUserOps = multiChronos.with({
+  key: 'runtime-tenant-b',
   dbName: 'runtime_tenant_b',
   collection: 'users',
 });
 
 // Option C: Generic tier (shared data)
 export const systemConfigOps = multiChronos.with({
+  key: 'meta-generic',
   dbName: 'meta_generic',
   collection: 'config',
 });
 
 // Option D: Domain tier (shared within domain)
 export const domainContentOps = multiChronos.with({
+  key: 'know-domain-1',
   dbName: 'know_domain_1',
   collection: 'articles',
 });

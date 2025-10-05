@@ -1,35 +1,43 @@
 import { initChronos } from 'chronos-db';
 import { envDbConfig } from './envDbConfig';
 
-// Database configuration - chronos-db 1.5.1 format
+// Database configuration - chronos-db 1.5.2 format
 export const dbConfig = {
-  // MongoDB connection URIs - required
-  mongoUris: [
-    envDbConfig.mongoUri, // Load from environment variables
-    // For production, use replica set:
-    // 'mongodb://mongo1:27017,mongo2:27017,mongo3:27017/dbname?replicaSet=rs0'
+  // MongoDB connections - define once, reference by key
+  mongoConns: [
+    {
+      key: 'mongo-local',
+      mongoUri: envDbConfig.mongoUri, // Load from environment variables
+      // For production, use replica set:
+      // mongoUri: 'mongodb://mongo1:27017,mongo2:27017,mongo3:27017/dbname?replicaSet=rs0'
+    }
   ],
   
   // Database configuration - at least one database type required
   databases: {
-    runtime: {
-      generic: {
+    runtime: [
+      {
         key: 'runtime-generic',
-        mongoUri: envDbConfig.mongoUri,
+        mongoConnKey: 'mongo-local',
+        spacesConnKey: 'do-spaces',
         dbName: 'runtime_generic',
-      },
-    },
+      }
+    ]
   },
   
   // DigitalOcean Spaces configuration (fixed for compatibility)
   spacesConns: [{
+    key: 'do-spaces',
     endpoint: 'https://chronos-1.fra1.digitaloceanspaces.com', // DigitalOcean Spaces endpoint
     region: 'fra1', // DigitalOcean region (can also use 'us-east-1' for AWS SDK compatibility)
     accessKey: envDbConfig.spaceAccessKey, // Load from environment variables
     secretKey: envDbConfig.spaceSecretKey, // Load from environment variables
-    backupsBucket: 'chronos-backups',
-    jsonBucket: 'chronos-json',
-    contentBucket: 'chronos-content',
+    buckets: {
+      backup: 'chronos-backups',
+      json: 'chronos-json',
+      content: 'chronos-content',
+      versions: 'chronos-versions',
+    },
     forcePathStyle: true, // Path style to avoid SSL certificate hostname mismatch
   }],
   
@@ -59,6 +67,7 @@ export const dbConfig = {
   // Disable transactions for non-replica set MongoDB
   transactions: {
     enabled: false,
+    autoDetect: false,
   },
   
   // Collection mappings with validation
@@ -83,11 +92,13 @@ export const chronos = initChronos(dbConfig);
 
 // Export context-bound operations for different collections
 export const userOps = chronos.with({
+  key: 'runtime-generic',
   dbName: 'runtime_generic',
   collection: 'users',
 });
 
 export const productOps = chronos.with({
+  key: 'runtime-generic',
   dbName: 'runtime_generic',
   collection: 'products',
 });
