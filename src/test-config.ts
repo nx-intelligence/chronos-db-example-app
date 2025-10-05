@@ -1,22 +1,26 @@
 import { initChronos } from 'chronos-db';
 import { envDbConfig } from './envDbConfig';
 
-// Minimal test configuration to isolate the transaction issue
+// Minimal test configuration to isolate the transaction issue - chronos-db 1.5.3 format with transaction system compatibility
 export const testConfig = {
-  // MongoDB connection URIs - required
-  mongoUris: [
-    envDbConfig.mongoUri,
+  // MongoDB connections - define once, reference by key
+  mongoConns: [
+    {
+      key: 'mongo-local',
+      mongoUri: envDbConfig.mongoUri,
+    }
   ],
+  
   
   // Database configuration - minimal setup
   databases: {
-    runtime: {
-      generic: {
+    runtime: [
+      {
         key: 'runtime-test',
-        mongoUri: envDbConfig.mongoUri,
+        mongoConnKey: 'mongo-local',
         dbName: 'runtime_test',
-      },
-    },
+      }
+    ]
   },
   
   // Counters configuration for analytics
@@ -64,6 +68,7 @@ export const testChronos = initChronos(testConfig);
 
 // Export context-bound operations
 export const testOps = testChronos.with({
+  key: 'runtime-test',
   dbName: 'runtime_test',
   collection: 'test',
 });
