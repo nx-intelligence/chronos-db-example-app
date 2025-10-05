@@ -3,23 +3,20 @@ import { envDbConfig } from './envDbConfig';
 
 // Minimal test configuration to isolate the transaction issue
 export const testConfig = {
-  // MongoDB connections - define once, reference by key
-  mongoConns: [
-    {
-      key: 'mongo-test',
-      mongoUri: envDbConfig.mongoUri,
-    }
+  // MongoDB connection URIs - required
+  mongoUris: [
+    envDbConfig.mongoUri,
   ],
   
   // Database configuration - minimal setup
   databases: {
-    runtime: [
-      {
+    runtime: {
+      generic: {
         key: 'runtime-test',
-        mongoConnKey: 'mongo-test',
+        mongoUri: envDbConfig.mongoUri,
         dbName: 'runtime_test',
-      }
-    ]
+      },
+    },
   },
   
   // Counters configuration for analytics
@@ -40,10 +37,10 @@ export const testConfig = {
   },
   
   // Try completely removing transactions
-  // transactions: {
-  //   enabled: false,
-  //   autoDetect: false,
-  // },
+  transactions: {
+    enabled: false,
+    autoDetect: false,
+  },
   
   // Local storage configuration - fallback when S3 credentials are not available
   localStorage: {
@@ -52,7 +49,14 @@ export const testConfig = {
   },
   
   // Collection maps - required field
-  collectionMaps: {},
+  collectionMaps: {
+    test: {
+      indexedProps: ['name', 'value'],
+      validation: {
+        requiredIndexed: ['name'],
+      },
+    },
+  },
 };
 
 // Initialize Chronos
@@ -60,7 +64,6 @@ export const testChronos = initChronos(testConfig);
 
 // Export context-bound operations
 export const testOps = testChronos.with({
-  key: 'runtime-test',
   dbName: 'runtime_test',
   collection: 'test',
 });

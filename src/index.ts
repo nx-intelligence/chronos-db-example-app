@@ -75,6 +75,7 @@ async function main() {
     // Example 3: Update the user
     console.log('\n✏️ Updating user...');
     const updatedUser = await userOps.update(newUser.id, {
+      email: latestUser?.item?.email || 'john.doe@example.com', // Keep required field
       status: 'verified',
       metadata: {
         ...(latestUser?.item?.metadata || {}),

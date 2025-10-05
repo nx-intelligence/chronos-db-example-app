@@ -371,16 +371,18 @@ collectionMaps: {
 
 ## 🚨 Known Issues
 
-### Chronos-DB 1.5.2 Bug
+### Chronos-DB 1.5.1+ Transaction System Bug
 
-**⚠️ CRITICAL**: Version 1.5.2 has a bug where the transaction system cannot resolve MongoDB URIs from the new `mongoConns` format. All write operations fail with "No MongoDB URI available for transaction check".
+**⚠️ CRITICAL**: Versions 1.5.1, 1.5.2, and 1.5.3 have a bug where the transaction system cannot resolve MongoDB URIs from the new `mongoConns` format. All write operations fail with "No MongoDB URI available for transaction check".
 
-**Workaround**: Downgrade to chronos-db@1.5.1:
+**Root Cause**: The transaction system still looks for `config.mongoUris[0]` but the configuration format changed to `mongoConns` array with key-based references.
+
+**Workaround**: Use chronos-db@1.4.0 (last working version):
 ```bash
-npm install chronos-db@1.5.1
+npm install chronos-db@1.4.0
 ```
 
-See `CHRONOS_DB_1.5.2_ISSUE_REPORT.md` for detailed analysis.
+**Status**: Bug persists in all versions 1.5.1+. See `CHRONOS_DB_1.5.2_ISSUE_REPORT.md` and `CHRONOS_DB_1.5.3_UPDATE_REPORT.md` for detailed analysis.
 
 ## 🎓 Learning Objectives
 

@@ -12,7 +12,7 @@
   "dependencies": {
     "@types/aws-sdk": "^0.0.42",
     "aws-sdk": "^2.1692.0",
-    "chronos-db": "^1.5.2",
+    "chronos-db": "^1.4.0",
     "dotenv": "^17.2.3"
   },
   "devDependencies": {
